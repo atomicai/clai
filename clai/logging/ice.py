@@ -4,8 +4,9 @@ import pathlib
 import time
 from typing import Optional
 
-from clai.logging import base
 from icecream import ic
+
+from clai.logging import base
 
 logger = logging.getLogger(__name__)
 

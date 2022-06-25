@@ -1,6 +1,20 @@
 import torch.nn as nn
 
 
+class UpscaleBlock(nn.Module):
+    def __init__(self, x_dim, h_dim):
+        super(UpscaleBlock, self).__init__()
+        self.xh = FeedForwardBlock(layer_dims=[x_dim, h_dim])
+        self.f = nn.SiLU()
+        self.hx = FeedForwardBlock(layer_dims=[h_dim, x_dim])
+
+    def forward(self, X):
+        y = self.xh(X)
+        y = self.f(y)
+        y = self.hx(y)
+        return y
+
+
 class FeedForwardBlock(nn.Module):
     """A feed forward neural network of variable depth and width."""
 

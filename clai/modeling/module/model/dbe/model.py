@@ -10,18 +10,18 @@ from clai.modeling.module.model import base
 OUTPUT_DIM_NAMES = ["dim", "hidden_size", "d_model"]
 
 
-class COIModel(base.LanguageModel, calling_name="coi"):
+class DEBModel(base.LanguageModel, calling_name="deb"):
     def __init__(self):
-        super(COIModel, self).__init__()
+        super(DEBModel, self).__init__()
         self.model = None
-        self.name = "coi"
+        self.name = "deb"
         self.remote_name = None
 
     def save(self, where):
         pass
 
     @classmethod
-    def load(cls, pretrained_model_name_or_path="cointegrated/rubert-tiny", language=None, **kwargs):
+    def load(cls, pretrained_model_name_or_path="distilbert-base-multilingual-cased", language=None, **kwargs):
         """
         Load a pretrained model by supplying
 
@@ -34,29 +34,28 @@ class COIModel(base.LanguageModel, calling_name="coi"):
 
         """
 
-        coi = cls()
+        deb = cls()
         if "farm_lm_name" in kwargs:
-            coi.name = kwargs["farm_lm_name"]
+            deb.name = kwargs["farm_lm_name"]
         else:
-            coi.remote_name = pretrained_model_name_or_path
+            deb.remote_name = pretrained_model_name_or_path
         # We need to differentiate between loading model using FARM format and Pytorch-Transformers format
         farm_lm_config = pathlib.Path(pretrained_model_name_or_path) / "language_model_config.json"
         if os.path.exists(farm_lm_config):
             # FARM style
             coi_config = AutoConfig.from_pretrained(farm_lm_config)
             farm_lm_model = pathlib.Path(pretrained_model_name_or_path) / "language_model.bin"
-            coi.model = AutoModel.from_pretrained(farm_lm_model, config=coi_config, **kwargs)
-            coi.language = coi.model.config.language
+            deb.model = AutoModel.from_pretrained(farm_lm_model, config=coi_config, **kwargs)
+            deb.language = "multilingual"
         else:
             # Pytorch-transformer Style
-            coi.model = AutoModel.from_pretrained(str(pretrained_model_name_or_path), **kwargs)
-            coi.language = "en-ru"
-        return coi
+            deb.model = AutoModel.from_pretrained(str(pretrained_model_name_or_path), **kwargs)
+            deb.language = None
+        return deb
 
     def forward(self, input_ids, segment_ids=None, padding_mask=None, **kwargs):
         """
-        Perform the forward pass of the `COI` model which consists of `cointegrated/rubert-tiny` language model \
-        followed by one `UpScale` block.
+        Perform the forward pass of the BERT model.
 
         :param input_ids: The ids of each token in the input sequence. Is a tensor of shape [batch_size, max_seq_len]
         :type input_ids: torch.Tensor
@@ -79,3 +78,9 @@ class COIModel(base.LanguageModel, calling_name="coi"):
         else:
             sequence_output, pooled_output = output_tuple[0], output_tuple[1]
             return sequence_output, pooled_output
+
+    def enable_hidden_states_output(self):
+        self.model.encoder.config.output_hidden_states = True
+
+    def disable_hidden_states_output(self):
+        self.model.encoder.config.output_hidden_states = False

@@ -1,48 +1,48 @@
 fail_fast: true
-repos:
-  - repo: local
-    hooks:
-      - id: autoflake
-        name: Remove unused variables and imports
-        entry: bash -c 'autoflake "$@"; git add -u' --
-        language: python
-        args:
-          [
-            "--in-place",
-            "--remove-all-unused-imports",
-            "--remove-unused-variables",
-            "--expand-star-imports",
-            "--ignore-init-module-imports",
-          ]
-        files: \.py$
-      - id: isort
-        name: Sorting import statements
-        entry: bash -c 'isort "$@"; git add -u' --
-        language: python
-        args: ["--filter-files"]
-        files: \.py$
-      - id: black
-        name: Black Python code formatting
-        entry: bash -c 'black "$@"; git add -u' --
-        language: python
-        types: [python]
-        args: ["--line-length=129"]
 # repos:
 #   - repo: local
 #     hooks:
-#       - id: format
-#         name: format
-#         entry: make format
-#         language: system
-#         always_run: true
-#         pass_filenames: false
-#         description: format
-#         verbose: true
-#       - id: test
-#         name: test
-#         entry: make test
-#         language: system
-#         always_run: false
-#         pass_filenames: false
-#         description: test
-#         verbose: true
+#       - id: autoflake
+#         name: Remove unused variables and imports
+#         entry: bash -c 'autoflake "$@"; git add -u' --
+#         language: python
+#         args:
+#           [
+#             "--in-place",
+#             "--remove-all-unused-imports",
+#             "--remove-unused-variables",
+#             "--expand-star-imports",
+#             "--ignore-init-module-imports",
+#           ]
+#         files: \.py$
+#       - id: isort
+#         name: Sorting import statements
+#         entry: bash -c 'isort "$@"; git add -u' --
+#         language: python
+#         args: ["--filter-files"]
+#         files: \.py$
+#       - id: black
+#         name: Black Python code formatting
+#         entry: bash -c 'black "$@"; git add -u' --
+#         language: python
+#         types: [python]
+#         args: ["--line-length=129"]
+repos:
+  - repo: local
+    hooks:
+      - id: format
+        name: format
+        entry: make format
+        language: system
+        always_run: true
+        pass_filenames: false
+        description: format
+        verbose: true
+      - id: test
+        name: test
+        entry: make test
+        language: system
+        always_run: false
+        pass_filenames: false
+        description: test
+        verbose: true

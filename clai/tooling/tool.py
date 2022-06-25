@@ -1,13 +1,14 @@
 import hashlib
 import json
 import logging
-import multiprocessing as mp
 import os
+import pathlib
 import random
 from itertools import islice
 from typing import Iterable
 
 import numpy as np
+import simplejson
 
 logger = logging.getLogger(__name__)
 
@@ -70,28 +71,14 @@ def grouper(iterable, n, worker_id=0, total_workers=1):
     return iter(lambda: list(islice(iterable, n)), [])
 
 
-def calc_chunksize(num_dicts, min_chunksize=4, max_chunksize=2000, max_processes=128):
-    if mp.cpu_count() > 3:
-        num_cpus = min(mp.cpu_count() - 1 or 1, max_processes)  # -1 to keep a CPU core free for xxx
-    else:
-        num_cpus = min(mp.cpu_count(), max_processes)  # when there are few cores, we use all of them
-
-    dicts_per_cpu = np.ceil(num_dicts / num_cpus)
-    # automatic adjustment of multiprocessing chunksize
-    # for small files (containing few dicts) we want small chunksize to ulitize all available cores but never less
-    # than 2, because we need it to sample another random sentence in LM finetuning
-    # for large files we want to minimize processor spawning without giving too much data to one process, so we
-    # clip it at 5k
-    multiprocessing_chunk_size = int(np.clip((np.ceil(dicts_per_cpu / 5)), a_min=min_chunksize, a_max=max_chunksize))
-    # This lets us avoid cases in lm_finetuning where a chunk only has a single doc and hence cannot pick
-    # a valid next sentence substitute from another document
-    if num_dicts != 1:
-        while num_dicts % multiprocessing_chunk_size == 1:
-            multiprocessing_chunk_size -= -1
-    dict_batches_to_process = int(num_dicts / multiprocessing_chunk_size)
-    num_processes = min(num_cpus, dict_batches_to_process) or 1
-
-    return multiprocessing_chunk_size, num_processes
+def is_json(x):
+    if issubclass(type(x), pathlib.Path):
+        return True
+    try:
+        simplejson.dumps(x)
+        return True
+    except:
+        return False
 
 
 def initialize_device_settings(use_cuda, use_ips: bool = False, local_rank=-1, use_amp=None):

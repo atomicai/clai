@@ -1,10 +1,10 @@
 import io
 import pathlib
-from typing import Union
 
 import numpy as np
 import torch
 import transformers
+
 from clai.tooling import nlp
 
 
@@ -66,6 +66,12 @@ class LanguageModel(torch.nn.Module):
             state_dict = model_to_save.state_dict()
         torch.save(state_dict, save_name)
         self.save_config(save_dir)
+
+    def enable_hidden_states_output(self):
+        self.model.encoder.config.output_hidden_states = True
+
+    def disable_hidden_states_output(self):
+        self.model.encoder.config.output_hidden_states = False
 
     def formatted_preds(self, logits, samples, ignore_first_token=True, padding_mask=None, input_ids=None, **kwargs):
         """

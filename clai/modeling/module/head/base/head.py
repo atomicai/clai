@@ -1,3 +1,4 @@
+import io
 import logging
 import os
 import pathlib
@@ -6,7 +7,8 @@ import numpy as np
 import simplejson
 import torch
 import torch.nn as nn
-from clai.tooling import block
+
+from clai.tooling import block, tool
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +27,7 @@ class PredictionHead(nn.Module):
         cls.subclasses[cls.__name__] = cls
 
     @classmethod
-    def create(cls, prediction_head_name, layer_dims, class_weights=None):
+    def create(cls, prediction_head_name, layer_dims, class_weights=None, **kwargs):
         """
         Create subclass of Prediction Head.
 
@@ -42,7 +44,7 @@ class PredictionHead(nn.Module):
         #  1. Class weights is not relevant for all heads.
         #  2. Layer weights impose FF structure, maybe we want sth else later
         # Solution: We could again use **kwargs
-        return cls.subclasses[prediction_head_name](layer_dims=layer_dims, class_weights=class_weights)
+        return cls.subclasses[prediction_head_name](layer_dims=layer_dims, class_weights=class_weights, **kwargs)
 
     def save_config(self, save_dir, head_num=0):
         """
@@ -56,7 +58,7 @@ class PredictionHead(nn.Module):
         # updating config in case the parameters have been changed
         self.generate_config()
         output_config_file = pathlib.Path(save_dir) / f"prediction_head_{head_num}_config.json"
-        with open(output_config_file, "w") as f:
+        with io.open(output_config_file, "w") as f:
             simplejson.dump(self.config, f)
 
     def save(self, save_dir, head_num=0):
@@ -80,7 +82,7 @@ class PredictionHead(nn.Module):
         for key, value in self.__dict__.items():
             if type(value) is np.ndarray:
                 value = value.tolist()
-            if is_json(value) and key[0] != "_":
+            if tool.is_json(value) and key[0] != "_":
                 config[key] = value
             if self.task_name == "text_similarity" and key == "similarity_function":
                 config['similarity_function'] = value
@@ -89,7 +91,12 @@ class PredictionHead(nn.Module):
         self.config = config
 
     @classmethod
-    def load(cls, config_file, strict=True, load_weights=True):
+    def load(cls, name: str = None, **kwargs):
+        klass = cls.subclasses[name] if name is not None else cls.subclasses[cls.__name__]
+        return klass.load(**kwargs)
+
+    @classmethod
+    def _load(cls, config_file, strict=True, load_weights=True):
         """
         Loads a Prediction Head. Infers the class of prediction head from config_file.
 
@@ -102,7 +109,7 @@ class PredictionHead(nn.Module):
         :return: PredictionHead
         :rtype: PredictionHead[T]
         """
-        config = simplejson.load(open(config_file))
+        config = simplejson.load(io.open(config_file))
         prediction_head = cls.subclasses[config["name"]](**config)
         if load_weights:
             model_file = cls._get_model_file(config_file=config_file)

@@ -2,7 +2,6 @@ import ast
 import copy
 import json
 import logging
-import os
 import pathlib
 from typing import Union
 
@@ -38,41 +37,6 @@ from clai.tooling import remote
 logger = logging.getLogger(__name__)
 
 
-def read_tsv(filename, rename_columns, quotechar='"', delimiter="\t", skiprows=None, header=0, proxies=None, max_samples=None):
-    """Reads a tab separated value file. Tries to download the data if filename is not found"""
-
-    # get remote dataset if needed
-    if not (os.path.exists(filename)):
-        logger.info(f" Couldn't find {filename} locally. Trying to download ...")
-        remote._download_extract_downstream_data(filename, proxies=proxies)
-
-    # read file into df - but only read those cols we need
-    columns_needed = list(rename_columns.keys())
-    df = pd.read_csv(
-        filename,
-        sep=delimiter,
-        encoding="utf-8-sig",
-        quotechar=quotechar,
-        dtype=str,
-        skiprows=skiprows,
-        header=header,
-        skipinitialspace=True,
-        usecols=columns_needed,
-    )
-    if max_samples:
-        df = df.sample(max_samples)
-
-    # let's rename our target columns to the default names FARM expects:
-    # "text": contains the text
-    # "text_classification_label": contains a label for text classification
-    df.rename(columns=rename_columns, inplace=True)
-    df.fillna("", inplace=True)
-
-    # convert df to one dict per row
-    raw_dict = df.to_dict(orient="records")
-    return raw_dict
-
-
 def load_tokenizer(pretrained_model_name_or_path, revision=None, tokenizer_class=None, use_fast=True, **kwargs):
     """
     Enables loading of different Tokenizer classes with a uniform interface. Either infer the class from
@@ -103,7 +67,7 @@ def load_tokenizer(pretrained_model_name_or_path, revision=None, tokenizer_class
             # FARM model (no 'config.json' file)
             try:
                 config = AutoConfig.from_pretrained(pretrained_model_name_or_path + "/language_model_config.json")
-            except Exception as e:
+            except Exception:
                 logger.warning("No config file found. Trying to infer Tokenizer type from model name")
 
         model_type = config.model_type

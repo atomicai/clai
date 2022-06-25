@@ -4,6 +4,7 @@ import pathlib
 from typing import Optional
 
 import wandb
+
 from clai.logging import base
 
 logger = logging.getLogger(__name__)

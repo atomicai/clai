@@ -1,3 +1,4 @@
+import copy
 import hashlib
 import json
 import logging
@@ -79,6 +80,25 @@ def is_json(x):
         return True
     except:
         return False
+
+
+def flatten_list(nested_list):
+    """Flatten an arbitrarily nested list, without recursion (to avoid
+    stack overflows). Returns a new list, the original list is unchanged.
+    >> list(flatten_list([1, 2, 3, [4], [], [[[[[[[[[5]]]]]]]]]]))
+    [1, 2, 3, 4, 5]
+    >> list(flatten_list([[1, 2], 3]))
+    [1, 2, 3]
+    """
+    nested_list = copy.deepcopy(nested_list)
+
+    while nested_list:
+        sublist = nested_list.pop(0)
+
+        if isinstance(sublist, list):
+            nested_list = sublist + nested_list
+        else:
+            yield sublist
 
 
 def initialize_device_settings(use_cuda, use_ips: bool = False, local_rank=-1, use_amp=None):

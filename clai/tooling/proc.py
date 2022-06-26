@@ -6,7 +6,7 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader, TensorDataset
 
-from farm.utils import flatten_list
+from clai.tooling import tool
 
 logger = logging.getLogger(__name__)
 
@@ -132,7 +132,7 @@ def convert_features_to_dataset(features):
                     base = check
                 # extract a base variable from a nested lists or tuples
                 elif isinstance(check, list):
-                    base = list(flatten_list(check))[0]
+                    base = list(tool.flatten_list(check))[0]
                 # extract a base variable from numpy arrays
                 else:
                     base = check.ravel()[0]
@@ -423,7 +423,7 @@ def convert_features_to_dataset(features):
                     base = check
                 # extract a base variable from a nested lists or tuples
                 elif isinstance(check, list):
-                    base = list(flatten_list(check))[0]
+                    base = list(tool.flatten_list(check))[0]
                 # extract a base variable from numpy arrays
                 else:
                     base = check.ravel()[0]

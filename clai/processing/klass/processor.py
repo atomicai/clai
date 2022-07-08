@@ -1,12 +1,13 @@
 import logging
+from typing import Dict, List
 
-from clai.processing import base
+from clai.processing import processor
 from clai.tooling import io, proc
 
 logger = logging.getLogger(__name__)
 
 
-class TextClassificationProcessor(base.Processor, calling_name="klass"):
+class TextClassificationProcessor(processor.Processor, calling_name="klass"):
     """
     Used to handle the text classification datasets that come in tabular format (CSV, TSV, etc.)
     """
@@ -120,7 +121,7 @@ class TextClassificationProcessor(base.Processor, calling_name="klass"):
                 "using the default task or add a custom task later via processor.add_task()"
             )
 
-    def file_to_dicts(self, file: str) -> [dict]:
+    def file_to_dicts(self, file: str) -> List[Dict]:
         column_mapping = {}
         for task in self.tasks.values():
             column_mapping[task["label_column_name"]] = task["label_name"]

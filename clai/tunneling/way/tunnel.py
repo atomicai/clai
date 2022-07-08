@@ -1,10 +1,8 @@
 import os
 
 import torch.nn as nn
-
-from clai.modeling.module.head import PredictionHead
-from clai.modeling.module.model import LanguageModel
-from clai.tunneling import Tunnel
+from clai.modeling.module import head, model
+from clai.tunneling import tunnel
 
 
 def loss_per_head_sum(loss_per_head, global_step=None, batch=None):
@@ -15,7 +13,7 @@ def loss_per_head_sum(loss_per_head, global_step=None, batch=None):
     return sum(loss_per_head)
 
 
-class WayTunnel(nn.Module, Tunnel, calling_name="way"):
+class WayTunnel(nn.Module, tunnel.Tunnel, calling_name="way"):
     """PyTorch implementation containing all the modelling needed for your NLP task. Combines a language
     model and a prediction head. Allows for gradient flow back to the language model component."""
 
@@ -145,20 +143,20 @@ class WayTunnel(nn.Module, Tunnel, calling_name="way"):
 
         # Language Model
         if lm_name:
-            language_model = LanguageModel.load(load_dir, farm_lm_name=lm_name)
+            lm = model.LanguageModel.load(load_dir, farm_lm_name=lm_name)
         else:
-            language_model = LanguageModel.load(load_dir)
+            lm = model.LanguageModel.load(load_dir)
 
         # Prediction heads
         _, ph_config_files = cls._get_prediction_head_files(load_dir)
         prediction_heads = []
         ph_output_type = []
         for config_file in ph_config_files:
-            head = PredictionHead.load(config_file, strict=strict)
-            prediction_heads.append(head)
-            ph_output_type.append(head.ph_output_type)
+            _head = head.PredictionHead.load(config_file, strict=strict)
+            prediction_heads.append(_head)
+            ph_output_type.append(_head.ph_output_type)
 
-        model = cls(language_model, prediction_heads, 0.1, ph_output_type, device)
+        model = cls(lm, prediction_heads, 0.1, ph_output_type, device)
         if processor:
             model.connect_heads_with_processor(processor.tasks)
 

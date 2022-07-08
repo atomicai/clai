@@ -3,21 +3,21 @@ import pathlib
 
 from transformers import AutoConfig, AutoModel
 
-from clai.modeling.module.model import base
+from clai.modeling.module.model import model
 
 # These are the names of the attributes in various model configs which refer to the number of dimensions
 # in the output vectors
 OUTPUT_DIM_NAMES = ["dim", "hidden_size", "d_model"]
 
 
-class COIModel(base.LanguageModel, calling_name="coi"):
+class COIModel(model.LanguageModel, calling_name="coi"):
     def __init__(self):
         super(COIModel, self).__init__()
         self.model = None
         self.name = "coi"
         self.remote_name = None
 
-    def save(self, where):
+    def save(self, where: pathlib.Path):
         pass
 
     @classmethod

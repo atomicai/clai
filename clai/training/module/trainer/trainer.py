@@ -6,13 +6,14 @@ from pathlib import Path
 import dill
 import numpy
 import torch
+
+# from farm.eval import Evaluator
+# from farm.modeling.optimization import get_scheduler
+# from farm.utils import GracefulKiller, set_all_seeds
+# from farm.visual.ascii.images import GROWING_TREE
 from tqdm import tqdm
 
-from farm.eval import Evaluator
-from farm.modeling.adaptive_model import AdaptiveModel
-from farm.modeling.optimization import get_scheduler
-from farm.utils import GracefulKiller, set_all_seeds
-from farm.visual.ascii.images import GROWING_TREE
+from clai.tunneling import tunnel
 
 try:
     from apex import amp

@@ -168,3 +168,29 @@ class LanguageModel(torch.nn.Module):
                 mask=padding_mask == 0,
             )
         return pooled_vecs
+
+
+class ImageModel(torch.nn.Module):
+
+    subclasses = {}
+
+    def __init_subclass__(cls, calling_name: str = None, **kwargs):
+        """This automatically keeps track of all available subclasses.
+        Enables generic load() or all specific Formatter implementation.
+        """
+        super().__init_subclass__(**kwargs)
+        calling_name = cls.__name__ if calling_name is None else calling_name
+        cls.subclasses[calling_name] = cls
+
+
+class TTSModel(torch.nn.Module):
+
+    subclasses = {}
+
+    def __init_subclass__(cls, calling_name: str = None, **kwargs):
+        """This automatically keeps track of all available subclasses.
+        Enables generic load() or all specific Formatter implementation.
+        """
+        super().__init_subclass__(**kwargs)
+        calling_name = cls.__name__ if calling_name is None else calling_name
+        cls.subclasses[calling_name] = cls

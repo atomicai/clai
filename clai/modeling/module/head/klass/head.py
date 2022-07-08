@@ -6,14 +6,14 @@ import torch
 import torch.nn as nn
 from transformers import AutoModelForSequenceClassification
 
-from clai.modeling.module.head import base
+from clai.modeling.module.head import head
 from clai.tooling import block
-from clai.training.module import loss
+from clai.training.module.loss import loss
 
 logger = logging.getLogger(__name__)
 
 
-class TextClassificationHead(base.PredictionHead):
+class TextClassificationHead(head.PredictionHead, calling_name="klass"):
     def __init__(
         self,
         layer_dims=None,
@@ -66,12 +66,9 @@ class TextClassificationHead(base.PredictionHead):
         else:
             balanced_weights = None
 
-        self.loss_fct = loss.CELoss(class_weights=balanced_weights, reduction=loss_reduction, ignore_index=loss_ignore_index)
-        # self.loss_fct = nn.CrossEntropyLoss(
-        #     weight=balanced_weights,
-        #     reduction=loss_reduction,
-        #     ignore_index=loss_ignore_index,
-        # )
+        self.loss_fct = loss.CrossEntropyLoss(
+            class_weights=balanced_weights, reduction=loss_reduction, ignore_index=loss_ignore_index
+        )
 
         # add label list
         if label_list:

@@ -19,12 +19,13 @@ class PredictionHead(nn.Module):
 
     subclasses = {}
 
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, calling_name: str = None, **kwargs):
         """This automatically keeps track of all available subclasses.
-        Enables generic load() for all specific PredictionHead implementation.
+        Enables generic load() or all specific Formatter implementation.
         """
         super().__init_subclass__(**kwargs)
-        cls.subclasses[cls.__name__] = cls
+        calling_name = cls.__name__ if calling_name is None else calling_name
+        cls.subclasses[calling_name] = cls
 
     @classmethod
     def create(cls, prediction_head_name, layer_dims, class_weights=None, **kwargs):

@@ -3,8 +3,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class CELoss(nn.Module):
+class CrossEntropyLoss(nn.Module):
     def __init__(self, class_weights, reduction="none", ignore_index=-100):
+        super(CrossEntropyLoss, self).__init__()
         balanced_weights = nn.Parameter(torch.tensor(class_weights), requires_grad=False) if class_weights is not None else None
         self.fct = nn.CrossEntropyLoss(
             weight=balanced_weights,

@@ -17,7 +17,7 @@ class DEBModel(base.LanguageModel, calling_name="deb"):
         self.name = "deb"
         self.remote_name = None
 
-    def save(self, where):
+    def save(self, where: pathlib.Path):
         pass
 
     @classmethod

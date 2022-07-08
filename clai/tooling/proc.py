@@ -4,9 +4,8 @@ import numbers
 
 import numpy as np
 import torch
-from torch.utils.data import DataLoader, TensorDataset
-
 from clai.tooling import tool
+from torch.utils.data import DataLoader, TensorDataset
 
 logger = logging.getLogger(__name__)
 

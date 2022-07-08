@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import random_name
 import simplejson
+from clai.tooling import pic, remote
 from transformers import (
     AlbertTokenizer,
     AlbertTokenizerFast,
@@ -31,8 +32,6 @@ from transformers import (
     XLNetTokenizer,
     XLNetTokenizerFast,
 )
-
-from clai.tooling import remote
 
 logger = logging.getLogger(__name__)
 
@@ -227,3 +226,27 @@ def chunkify(f, chunksize=10_000_000, sep="\n"):
                 remainder = piece
     if remainder:  # This statement will be executed iff @remainder != ''
         yield remainder
+
+
+def log_ascii_workers(n, logger):
+    m_worker_lines = pic.WORKER_M.split("\n")
+    f_worker_lines = pic.WORKER_F.split("\n")
+    x_worker_lines = pic.WORKER_X.split("\n")
+    all_worker_lines = []
+    for i in range(n):
+        rand = np.random.randint(low=0, high=3)
+        if rand % 3 == 0:
+            all_worker_lines.append(f_worker_lines)
+        elif rand % 3 == 1:
+            all_worker_lines.append(m_worker_lines)
+        else:
+            all_worker_lines.append(x_worker_lines)
+    zipped = zip(*all_worker_lines)
+    for z in zipped:
+        logger.info("  ".join(z))
+
+
+def format_log(ascii, logger):
+    ascii_lines = ascii.split("\n")
+    for l in ascii_lines:
+        logger.info(l)
